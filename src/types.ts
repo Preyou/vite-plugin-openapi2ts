@@ -1,4 +1,4 @@
-import { SchemaObject } from "openapi3-ts";
+import type { OpenAPIObject, SchemaObject } from "openapi3-ts";
 import type { Plugin } from "vite";
 
 type FormatSchema = (schema: SchemaObject) => SchemaObject;
@@ -7,6 +7,7 @@ interface Options {
     swaggerUrl: string;
     output?: string;
     prettierPath?: string;
+    formatDocs?: (docs: SwaggerDoc | OpenAPIObject) => typeof docs;
     formatSchema?: FormatSchema;
 }
 
