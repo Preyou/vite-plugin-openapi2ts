@@ -33,7 +33,7 @@ function swagger2TsPlugin(userOptions: UserOptions): ExportPlugin {
                     if (docs.swagger) openapiDocs = await convertObjPromise(docs);
                     else continue;
                 }
-                const apistrings = generateDocs(openapiDocs, { docsName, baseUrl: docs.basePath, formatSchema });
+                const apistrings = generateDocs(openapiDocs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
                 code += apistrings;
                 // console.log("apistrings", apistrings);
             } catch (error) {
