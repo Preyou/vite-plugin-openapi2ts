@@ -30,7 +30,7 @@ function swagger2TsPlugin(userOptions: UserOptions): ExportPlugin {
                 const docs = (await fetchUrl(`${swaggerUrl}${url}`)) as SwaggerDoc | OpenAPIObject;
                 let openapiDocs = formatDocs ? formatDocs(docs) : docs;
                 if (!("openapi" in openapiDocs)) {
-                    if (docs.swagger) openapiDocs = await convertObjPromise(docs);
+                    if (docs.swagger) openapiDocs = await convertObjPromise(openapiDocs);
                     else continue;
                 }
                 const apistrings = generateDocs(openapiDocs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
