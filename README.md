@@ -28,7 +28,6 @@ export default {
         ViteSwagger2ts({
             swaggerUrl: "url", // swagger-resources URL
             output: "pathToSave", // not require, default './src/swagger.ts'
-            prettierPath: "prettierPath", // not require, default '.prettierrc' or 'prettier.json'
             formatSchema: (schema) => {
                 // not require, deal with schema. such as unwrapper common response
                 if ("properties" in schema) {

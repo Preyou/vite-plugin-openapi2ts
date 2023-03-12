@@ -2,9 +2,8 @@ import { writeFileSync } from "fs";
 import { resolve } from "path";
 import { convertObj } from "swagger2openapi";
 import { OpenAPIObject } from "openapi3-ts";
-import { doc, format } from "prettier";
 import { UserOptions, ExportPlugin, SwaggerSource, SwaggerDoc } from "./types";
-import { resolveOptions, fetchUrl, getPrettierOptions } from "./utils";
+import { resolveOptions, fetchUrl } from "./utils";
 import { generateDocs } from "./generator";
 
 function convertObjPromise(docs: any): Promise<OpenAPIObject> {
@@ -18,8 +17,7 @@ function convertObjPromise(docs: any): Promise<OpenAPIObject> {
 }
 
 function swagger2TsPlugin(userOptions: UserOptions): ExportPlugin {
-    const { swaggerUrl, output, prettierPath, formatDocs, formatSchema } = resolveOptions(userOptions);
-    const prettierOptions = getPrettierOptions(prettierPath);
+    const { swaggerUrl, output, formatDocs, formatSchema } = resolveOptions(userOptions);
 
     async function loadSwaggerSource() {
         const sources = (await fetchUrl(`${swaggerUrl}/swagger-resources`)) as SwaggerSource[];
@@ -41,7 +39,7 @@ function swagger2TsPlugin(userOptions: UserOptions): ExportPlugin {
             }
         }
         const outputFile = resolve(process.cwd(), output);
-        writeFileSync(outputFile, format(code, prettierOptions));
+        writeFileSync(outputFile, code);
     }
 
     loadSwaggerSource();

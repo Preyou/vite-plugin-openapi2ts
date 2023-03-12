@@ -62,22 +62,3 @@ function getSchemaName(name: string): string {
 export function getRefName($ref: string, prefix: string = ""): string {
     return getSchemaName(prefix) + getSchemaName($ref || "");
 }
-
-export function getPrettierOptions(prettierPath?: string) {
-    let prettierOptions: any = {};
-    if (prettierPath && existsSync(prettierPath)) {
-        prettierOptions = JSON.parse(readFileSync(prettierPath).toString());
-    } else {
-        if (existsSync(".prettierrc")) {
-            prettierOptions = JSON.parse(readFileSync(".prettierrc").toString());
-        } else if (existsSync("prettier.json")) {
-            prettierOptions = JSON.parse(readFileSync("prettier.json").toString());
-        }
-    }
-
-    if (!prettierOptions.parser) {
-        prettierOptions.parser = "typescript";
-    }
-
-    return prettierOptions;
-}
