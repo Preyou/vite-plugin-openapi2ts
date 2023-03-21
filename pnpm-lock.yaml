@@ -7,6 +7,7 @@ importers:
       '@antfu/eslint-config': ^0.6.6
       '@commitlint/cli': ^12.1.4
       '@commitlint/config-conventional': ^12.1.4
+      '@dcloudio/types': ^3.2.11
       '@types/jest': ^26.0.24
       '@types/node': ^14.18.12
       '@typescript-eslint/eslint-plugin': ^4.33.0
@@ -20,6 +21,7 @@ importers:
       jest: ^26.6.3
       jest-esbuild: ^0.1.6
       lint-staged: ^10.5.4
+      luch-request: ^3.0.8
       openapi3-ts: ^2.0.2
       rollup: ^2.70.0
       swagger2openapi: ^7.0.8
@@ -35,6 +37,7 @@ importers:
       '@antfu/eslint-config': 0.6.6_jofidmxrjzhj7l6vknpw5ecvfe
       '@commitlint/cli': 12.1.4
       '@commitlint/config-conventional': 12.1.4
+      '@dcloudio/types': 3.2.11
       '@types/jest': 26.0.24
       '@types/node': 14.18.37
       '@typescript-eslint/eslint-plugin': 4.33.0_2raik7ghbnj434s5izctn4kvma
@@ -47,6 +50,7 @@ importers:
       jest: 26.6.3_ts-node@9.1.1
       jest-esbuild: 0.1.6
       lint-staged: 10.5.4
+      luch-request: 3.0.8
       rollup: 2.79.1
       ts-node: 9.1.1_typescript@4.9.5
       tsup: 6.6.3_ciguz3gyqhffdnngm55unhej5y
@@ -738,6 +742,14 @@ packages:
       '@jridgewell/trace-mapping': 0.3.9
     dev: true
     optional: true
+
+  /@dcloudio/types/2.6.12:
+    resolution: {integrity: sha512-mrCMwcINy1IFjU9VUqLeWBkj404yWs5paLDttBcA+eqUjanuUQbBcTVPqlrGgkyzLXDcV2oDDZRSNxNpXi4kMQ==}
+    dev: true
+
+  /@dcloudio/types/3.2.11:
+    resolution: {integrity: sha512-Ws+pUiQMvCcSjg0soF+vTTwwsdNlK/1cxIfo5LBBDFPoXfUAAh6k9HnCt5cudERNhY0M3wE7ATMx/1Cb9bmUig==}
+    dev: true
 
   /@emmetio/abbreviation/2.2.3:
     resolution: {integrity: sha512-87pltuCPt99aL+y9xS6GPZ+Wmmyhll2WXH73gG/xpGcQ84DRnptBsI2r0BeIQ0EB/SQTOe2ANPqFqj3Rj5FOGA==}
@@ -6061,6 +6073,12 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       yallist: 4.0.0
+    dev: true
+
+  /luch-request/3.0.8:
+    resolution: {integrity: sha512-5ZVp1y4tFaizbGMOuQwbeyfHnf4PhQAwQ3S1Fm1tS7juMoB14pXslxWriElhiSq6ytYYW0KVC8RShfHiNujFcQ==}
+    dependencies:
+      '@dcloudio/types': 2.6.12
     dev: true
 
   /magic-string/0.25.9:
