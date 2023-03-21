@@ -1,7 +1,7 @@
 {
     "name": "@1szx1/vite-plugin-swagger2ts",
     "description": "fork for https://github.com/1SZX1/vite-plugin-swagger2ts",
-    "version": "1.0.16",
+    "version": "1.0.17",
     "license": "MIT",
     "author": "1SZX1 <2414126198@qq.com>",
     "repository": {
