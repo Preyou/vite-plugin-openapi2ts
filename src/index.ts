@@ -20,7 +20,12 @@ function swagger2TsPlugin(userOptions: UserOptions): ExportPlugin {
     const { swaggerUrl, output, formatDocs, formatSchema } = resolveOptions(userOptions);
 
     async function loadSwaggerSource() {
-        const sources = (await fetchUrl(`${swaggerUrl}/swagger-resources`)) as SwaggerSource[];
+        let sources: SwaggerSource[] = []
+        try {
+            sources = await fetchUrl(`${swaggerUrl}/swagger-resources`);
+        } catch (error) {
+            console.log("vite-plugin-swagger2ts doc error", error);
+        }
         let code = "";
         for (let i = 0; i < sources.length; i++) {
             const { url, name: docsName } = sources[i];
@@ -35,7 +40,7 @@ function swagger2TsPlugin(userOptions: UserOptions): ExportPlugin {
                 code += apistrings;
                 // console.log("apistrings", apistrings);
             } catch (error) {
-                // console.log("vite-plugin-swagger2ts convert error", error);
+                console.log("vite-plugin-swagger2ts convert error", error);
             }
         }
         const outputFile = resolve(process.cwd(), output);
