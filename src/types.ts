@@ -10,12 +10,12 @@ interface Options {
     formatSchema?: FormatSchema;
 }
 
-export type UserOptions = Options;
+export interface UserOptions extends Options { };
 export interface ResolvedOptions extends Options {
     output: string;
 }
 
-export type ExportPlugin = Required<Pick<Plugin, "name" | "enforce" | "apply">>;
+export type ExportPlugin = Plugin
 
 export interface SwaggerSource {
     name: string;

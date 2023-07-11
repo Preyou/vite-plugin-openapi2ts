@@ -5,7 +5,8 @@
     "scripts": {
         "dev": "nodemon --watch ../../dist/*.js -x cross-env DEBUG=@1szx1/vite-plugin-swagger2ts:* vite",
         "build": "vue-tsc --noEmit && vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "api": "swagger2ts"
     },
     "dependencies": {
         "vue": "^3.2.31"

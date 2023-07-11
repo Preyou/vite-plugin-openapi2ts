@@ -7,7 +7,7 @@ import Restart from "vite-plugin-restart";
 export default defineConfig({
   plugins: [
     vue(),
-    Swagger2Ts({ swaggerUrl: "http://test.com", output: "./src/swagger.ts" }),
+    Swagger2Ts(),
     Restart({
       restart: ["../../dist/*.js"]
     })

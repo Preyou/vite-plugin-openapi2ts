@@ -3,14 +3,18 @@ import { resolve } from "path";
 import { UserOptions, ResolvedOptions } from "./types";
 import { OpenAPIObject, SchemaObject } from "openapi3-ts";
 import fetch from "cross-fetch";
+import { loadConfig } from "./config";
 
-export function resolveOptions(userOptions: UserOptions): ResolvedOptions {
+export async function resolveOptions(userOptions?: UserOptions) {
+    const { config } = await loadConfig()
+    userOptions = userOptions || config || {}
+
     const { output } = userOptions;
 
     const root = process.cwd();
     const outputFile = output ? (output?.endsWith(".ts") ? output : output + ".ts") : "./src/swagger.ts";
 
-    return Object.assign({ output: resolve(root, outputFile) }, userOptions);
+    return Object.assign({ output: resolve(root, outputFile) }, userOptions) as ResolvedOptions;
 }
 
 export async function fetchUrl(url: string) {
