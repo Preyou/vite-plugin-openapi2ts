@@ -1,6 +1,6 @@
 import type Request from 'luch-request'
 import type { HttpRequestConfig } from 'luch-request'
-import type { Get } from './utils'
+import { Get, mergeUrlParam } from './utils'
 
 type FilterOptional<Source, Condition> = Pick<
     Source,
@@ -26,8 +26,12 @@ function LuchAdapter<T extends Record<string, any>>(httpInstance: Request) {
         config?: HttpRequestConfig & {
             data?: Get<Param<U, M>, 'body'>
             params?: Get<Param<U, M>, 'query'>
+            path?: Get<Param<U, M>, 'path'>
         },
     ) {
+        if (config?.path)
+        (url as string) = mergeUrlParam(url, config.path)
+  
         const response = await httpInstance.middleware<Response<U, M>>({
             url,
             method: method.toUpperCase() as any,

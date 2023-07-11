@@ -40,7 +40,10 @@ function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
             }
         }
 
-        const sources = (await fetchUrl(`${swaggerUrl}/swagger-resources`)) as SwaggerSource[];
+        const sources = (await fetchUrl(`${swaggerUrl}/swagger-resources`).catch((error) => {
+            console.log("vite-plugin-swagger2ts doc error", error);
+            return []
+        })) as SwaggerSource[];
 
         const code = (await Promise.all(sources.map(genCode))).reduce((a, b) => a + b, '')
 
