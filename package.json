@@ -1,6 +1,6 @@
 {
     "name": "@1szx1/vite-plugin-swagger2ts",
-    "description": "fork for https://github.com/1SZX1/vite-plugin-swagger2ts",
+    "description": "forked from https://github.com/morelearn1990/vite-plugin-swagger2ts",
     "version": "1.1.1",
     "license": "MIT",
     "author": "1SZX1 <2414126198@qq.com>",
@@ -30,12 +30,7 @@
     "types": "dist/index.d.ts",
     "typesVersions": {
         "*": {
-            "/": [
-                "./dist"
-            ],
-            "adapters": [
-                "./dist/adapters"
-            ]
+            "adapters": ["./dist/adapters"]
         }
     },
     "bin": {
