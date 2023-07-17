@@ -4,7 +4,7 @@ import { convertObj } from "swagger2openapi";
 import { OpenAPIObject } from "openapi3-ts";
 import { UserOptions, SwaggerSource, SwaggerDoc, ExportPlugin } from "./types";
 import { resolveOptions, fetchUrl } from "./utils";
-import { generateDocs } from "./generator";
+import { generateDocs, getPathsName } from "./generator";
 
 function convertObjPromise(docs: any): Promise<OpenAPIObject> {
     return new Promise((resolve, reject) => {
@@ -46,7 +46,14 @@ function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
             return []
         })) as SwaggerSource[];
 
-        const code = (await Promise.all(sources.map(genCode))).reduce((a, b) => a + b, '')
+        const code = (await Promise.all(sources.map(genCode))).reduce((a, b, index, list) => {
+            let res = a + b
+            if (index === list.length - 1) {
+                const suffix = `export type ${getPathsName('_Intersection')} = ${sources.map(({ name }) => getPathsName(name)).join('&')}\n`
+                res += suffix
+            }
+            return res
+        }, '')
 
         const outputFile = resolve(process.cwd(), output);
         writeFileSync(outputFile, code);

@@ -63,18 +63,18 @@ export function generateDocs(input: OpenAPIObject, { docsName, baseUrl, formatSc
         .join("");
     const typeString = input.components?.schemas
         ? Object.entries(input.components.schemas)
-              .map(([name, schema]) => {
-                  if (typeof formatSchema == "function") {
-                      schema = formatSchema(schema);
-                  }
-                  if ("$ref" in schema) {
-                      schema = getRefObject(schema.$ref) as any as SchemaObject;
-                  }
-                  return generatorSchemaType(getRefName(`#/components/schemas/${name}`, docsName), schema, { isRoot: true, isExport: true, docsName });
-              })
-              .join("")
+            .map(([name, schema]) => {
+                if (typeof formatSchema == "function") {
+                    schema = formatSchema(schema);
+                }
+                if ("$ref" in schema) {
+                    schema = getRefObject(schema.$ref) as any as SchemaObject;
+                }
+                return generatorSchemaType(getRefName(`#/components/schemas/${name}`, docsName), schema, { isRoot: true, isExport: true, docsName });
+            })
+            .join("")
         : "";
-    const apiString = `${typeString}\nexport interface Paths${getRefName(docsName)}{${pathsTypeString}}\n`;
+    const apiString = `${typeString}\nexport interface ${getPathsName(docsName)}{${pathsTypeString}}\n`;
     return apiString.replaceAll(/\n\n/g, "\n").replaceAll(/\n\n/g, "\n");
 }
 
@@ -169,8 +169,11 @@ export function jsDoc(
     { description, title, format, example, default: default1 }: any,
     { key, result, isRoot, isExport, isRequired }: { key: string; result: string; isRoot?: boolean; isExport?: boolean; isRequired?: boolean }
 ): string {
-    const jsDoc = `\n/**\n${title ? ` * @title ${title}\n` : ""}${description ? ` * @description ${description}\n` : ""}${format ? ` * @format ${format}\n` : ""}${
-        default1 ? ` * @default ${default1}\n` : ""
-    }${example ? ` * @example ${example}\n` : ""} **/\n`;
+    const jsDoc = `\n/**\n${title ? ` * @title ${title}\n` : ""}${description ? ` * @description ${description}\n` : ""}${format ? ` * @format ${format}\n` : ""}${default1 ? ` * @default ${default1}\n` : ""
+        }${example ? ` * @example ${example}\n` : ""} **/\n`;
     return `${jsDoc == "\n/**\n **/\n" ? "" : jsDoc}${isRoot ? `${isExport ? "export " : ""}type ${key} = ${result};\n` : `${key}${isRequired === false ? "?" : ""}: ${result};\n`}`;
+}
+
+export function getPathsName(docsName: string) {
+    return `Paths${getRefName(docsName)}`
 }

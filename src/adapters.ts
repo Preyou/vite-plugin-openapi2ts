@@ -1,1 +1,1 @@
-export * from './adapters/index'
+export * from './_adapters/index'
