@@ -32,16 +32,17 @@ function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
                         return ''
                 }
                 const apistrings = generateDocs(openapiDocs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
+                console.log(`%c[vite-plugin-swagger2ts]: ${docsName} succeeded`, 'color: #00ff00;')
                 return apistrings
                 // console.log("apistrings", apistrings);
             } catch (error) {
-                console.log("vite-plugin-swagger2ts convert error", docsName, error);
+                console.log(`%c[vite-plugin-swagger2ts]: ${docsName} error`, 'color: #ff0000;', error)
                 return ''
             }
         }
 
         const sources = (await fetchUrl(`${swaggerUrl}/swagger-resources`).catch((error) => {
-            console.log("vite-plugin-swagger2ts doc error", error);
+            console.log(`%c[vite-plugin-swagger2ts]: doc error`, 'color: #ff0000;', error)
             return []
         })) as SwaggerSource[];
 
