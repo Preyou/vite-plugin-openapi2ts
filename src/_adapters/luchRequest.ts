@@ -9,7 +9,7 @@ type FilterOptional<Source, Condition> = Pick<
     }[keyof Source]
 >
 
-function LuchAdapter<T extends Record<string, any>, C extends HttpRequestConfig['custom'] = HttpRequestConfig['custom']>(httpInstance: Request) {
+function LuchAdapter<T extends Record<string, any>, C extends HttpRequestConfig = HttpRequestConfig>(httpInstance: Request) {
     type UrlKey = keyof T
     type MethodKey<U extends UrlKey> = string & keyof T[U]
 
@@ -23,11 +23,10 @@ function LuchAdapter<T extends Record<string, any>, C extends HttpRequestConfig[
     async function request<U extends UrlKey, M extends MethodKey<U>>(
         url: U & string, method: M,
         param?: Get<Param<U, M>, M extends 'get' ? 'query' : 'body'>,
-        config?: HttpRequestConfig & {
+        config?: HttpRequestConfig & C & {
             data?: Get<Param<U, M>, 'body'>
             params?: Get<Param<U, M>, 'query'>
-            path?: Get<Param<U, M>, 'path'>,
-            custom?: C
+            path?: Get<Param<U, M>, 'path'>
         },
     ) {
         if (config?.path)
