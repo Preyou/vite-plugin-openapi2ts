@@ -32,7 +32,6 @@ function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
                         return ''
                 }
                 const apistrings = generateDocs(openapiDocs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
-                console.log(`%c[vite-plugin-swagger2ts]: ${docsName} succeeded`, 'color: #00ff00;')
                 return apistrings
                 // console.log("apistrings", apistrings);
             } catch (error) {
