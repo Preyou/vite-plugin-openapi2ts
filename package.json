@@ -1,7 +1,7 @@
 {
     "name": "@1szx1/vite-plugin-swagger2ts",
     "description": "forked from https://github.com/morelearn1990/vite-plugin-swagger2ts",
-    "version": "1.1.7",
+    "version": "1.2.1",
     "license": "MIT",
     "author": "1SZX1 <2414126198@qq.com>",
     "repository": {
@@ -82,7 +82,7 @@
         "jest-esbuild": "^0.1.6",
         "lint-staged": "^10.5.4",
         "typescript": "^4.7.0",
-        "unbuild": "^1.2.1",
+        "unbuild": "^2.0.0",
         "vite": "^2.8.6"
     },
     "lint-staged": {

@@ -1,13 +1,13 @@
 import { writeFileSync } from "fs";
-import { resolve, join } from "path";
+import { resolve } from "path";
 import { convertObj } from "swagger2openapi";
 import { OpenAPIObject } from "openapi3-ts";
-import { UserOptions, SwaggerSource, SwaggerDoc, ExportPlugin } from "./types";
+import { UserOptions, SwaggerSource, SwaggerDoc, ExportPlugin, ResolvedOptions } from "./types";
 import { resolveOptions, fetchUrl } from "./utils";
 import { generateDocs, getPathsName } from "./generator";
 
-function convertObjPromise(docs: any): Promise<OpenAPIObject> {
-    return new Promise((resolve, reject) => {
+function convertObjPromise(docs: any) {
+    return new Promise<OpenAPIObject>((resolve, reject) => {
         convertObj(docs, { patch: true }, function (err, option) {
             // err && console.log("err", err);
             if (err || !option.openapi) return reject(err);
@@ -16,51 +16,74 @@ function convertObjPromise(docs: any): Promise<OpenAPIObject> {
     });
 }
 
-function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
+async function loadSwaggerSource(options: ResolvedOptions) {
+    const { swaggerUrl, jsonUrl, output, formatDocs, formatSchema } = options;
 
-    async function loadSwaggerSource() {
-        const { swaggerUrl, output, formatDocs, formatSchema } = await resolveOptions(userOptions);
-
-        async function genCode(source: SwaggerSource) {
-            const { url, name: docsName } = source;
-            try {
-                const docs = (await fetchUrl(`${swaggerUrl}${url}`)) as SwaggerDoc | OpenAPIObject;
-                let openapiDocs = formatDocs ? formatDocs(docs) : docs;
-                if (!("openapi" in openapiDocs)) {
-                    if (docs.swagger)
-                        openapiDocs = await convertObjPromise(openapiDocs);
-                    else
-                        throw new Error(JSON.stringify(docs))
-                }
-                const apistrings = generateDocs(openapiDocs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
-                return apistrings
-                // console.log("apistrings", apistrings);
-            } catch (error) {
-                console.log(`%c[vite-plugin-swagger2ts]: ${docsName} error`, 'color: #ff0000;', error)
-                return ''
-            }
+    async function genInterface(docs: SwaggerDoc | OpenAPIObject, docsName: string) {
+        let openapiDocs = formatDocs ? formatDocs(docs) : docs;
+        if (!("openapi" in openapiDocs)) {
+            if (docs.swagger)
+                openapiDocs = await convertObjPromise(openapiDocs);
+            else
+                throw new Error(JSON.stringify(docs))
         }
-
-        const sources = (await fetchUrl(`${swaggerUrl}/swagger-resources`).catch((error) => error)) as SwaggerSource[];
-
-        if (!Array.isArray(sources))
-            return console.log(`%c[vite-plugin-swagger2ts]: doc error`, 'color: #ff0000;', JSON.stringify(sources))
-
-        const interfaceList = await Promise.all(sources.map(genCode))
-        const code = interfaceList.reduce((a, b) => a + b, '')
-        const suffix = interfaceList.reduce((a, b, index) => {
-            if (b) {
-                a += !a ? `export type ${getPathsName('_Intersection')} = ` : `&\n`
-                a += `${getPathsName(sources[index].name)}`
-            }
-            return a
-        }, '')
-
-        const outputFile = resolve(process.cwd(), output);
-        writeFileSync(outputFile, code + suffix);
+        return generateDocs(openapiDocs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
     }
 
-    loadSwaggerSource();
+    async function genCode(source: SwaggerSource) {
+        const { url, name } = source;
+        try {
+            const docs = await fetchUrl(`${swaggerUrl}${url}`)
+            const code = await genInterface(docs, name)
+            return code
+        } catch (error) {
+            console.log(`%c[vite-plugin-swagger2ts]: ${name} error`, 'color: #ff0000;', (error as Error).message)
+            return ''
+        }
+    }
+
+    async function getSources() {
+        let sources: SwaggerSource[] | undefined = undefined
+        let interfaces: string[] = []
+
+        if (typeof swaggerUrl === 'string') {
+            const resources = (await fetchUrl(`${swaggerUrl}/swagger-resources`).catch((error) => error));
+            if (Array.isArray(resources)) {
+                sources = resources
+                interfaces.push(...(await Promise.all(sources.map(genCode))))
+            } else {
+                console.log(`%c[vite-plugin-swagger2ts]: resources error`, 'color: #ff0000;', JSON.stringify(resources))
+            }
+        }
+        if (typeof jsonUrl === 'string') {
+            const swaggerJson: OpenAPIObject = await fetchUrl(jsonUrl)
+            if (!swaggerJson.info) return console.log(`%c[vite-plugin-swagger2ts]: jsonUrl error`, 'color: #ff0000;', JSON.stringify(swaggerJson))
+            interfaces.push(await genInterface(swaggerJson, swaggerJson.info.title.replace(' ', '_')))
+        }
+
+        return { sources, interfaces }
+    }
+    const { sources, interfaces } = await getSources() || {}
+    if (!interfaces?.length) return
+
+    const code = interfaces.reduce((a, b) => a + b, '')
+    const suffix = sources ? interfaces.reduce((a, b, index) => {
+        if (b) {
+            a += !a ? `export type ${getPathsName('_Intersection')} = ` : `&`
+            a += `${getPathsName(sources[index].name)}`
+        }
+        return a
+    }, '') : ''
+
+    const outputFile = resolve(process.cwd(), output);
+    writeFileSync(outputFile, code + suffix);
+}
+
+function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
+
+    resolveOptions(userOptions).then(options => {
+        Promise.all(options.map(loadSwaggerSource))
+    })
 
     return {
         name: "vite-plugin-swagger2ts",

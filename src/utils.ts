@@ -8,13 +8,16 @@ import { loadConfig } from "./config";
 export async function resolveOptions(userOptions?: UserOptions) {
     const { config } = await loadConfig()
     userOptions = userOptions || config || {}
+    const options = 'sources' in userOptions ? userOptions.sources : [userOptions]
 
-    const { output } = userOptions;
+    return options.map(item => {
+        const { output } = item;
 
-    const root = process.cwd();
-    const outputFile = output ? (output?.endsWith(".ts") ? output : output + ".ts") : "./src/swagger.ts";
+        const root = process.cwd();
+        const outputFile = output ? (output?.endsWith(".ts") ? output : output + ".ts") : "./src/swagger.ts";
 
-    return Object.assign({ output: resolve(root, outputFile) }, userOptions) as ResolvedOptions;
+        return Object.assign({ output: resolve(root, outputFile) }, item) as ResolvedOptions;
+    })
 }
 
 export async function fetchUrl(url: string) {

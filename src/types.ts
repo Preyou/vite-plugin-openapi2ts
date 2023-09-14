@@ -3,14 +3,21 @@ import type { Plugin } from "vite";
 
 type FormatSchema = (schema: SchemaObject) => SchemaObject;
 
-interface Options {
-    swaggerUrl: string;
+export interface Options {
+    /**
+     * 文档域名地址
+     */
+    swaggerUrl?: string;
+    /**
+     * 文档json地址
+     */
+    jsonUrl?: string;
     output?: string;
     formatDocs?: (docs: SwaggerDoc | OpenAPIObject) => typeof docs;
     formatSchema?: FormatSchema;
 }
 
-export interface UserOptions extends Options { };
+export type UserOptions = Options | { sources: Options[] };
 export interface ResolvedOptions extends Options {
     output: string;
 }
