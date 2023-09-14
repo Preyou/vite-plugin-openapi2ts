@@ -1,5 +1,5 @@
 import { writeFileSync } from "fs";
-import { resolve } from "path";
+import { resolve, join } from "path";
 import { convertObj } from "swagger2openapi";
 import { OpenAPIObject } from "openapi3-ts";
 import { UserOptions, SwaggerSource, SwaggerDoc, ExportPlugin } from "./types";
@@ -27,9 +27,10 @@ function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
                 const docs = (await fetchUrl(`${swaggerUrl}${url}`)) as SwaggerDoc | OpenAPIObject;
                 let openapiDocs = formatDocs ? formatDocs(docs) : docs;
                 if (!("openapi" in openapiDocs)) {
-                    if (docs.swagger) openapiDocs = await convertObjPromise(openapiDocs);
+                    if (docs.swagger)
+                        openapiDocs = await convertObjPromise(openapiDocs);
                     else
-                        return ''
+                        throw new Error(JSON.stringify(docs))
                 }
                 const apistrings = generateDocs(openapiDocs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
                 return apistrings
@@ -40,22 +41,23 @@ function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
             }
         }
 
-        const sources = (await fetchUrl(`${swaggerUrl}/swagger-resources`).catch((error) => {
-            console.log(`%c[vite-plugin-swagger2ts]: doc error`, 'color: #ff0000;', error)
-            return []
-        })) as SwaggerSource[];
+        const sources = (await fetchUrl(`${swaggerUrl}/swagger-resources`).catch((error) => error)) as SwaggerSource[];
 
-        const code = (await Promise.all(sources.map(genCode))).reduce((a, b, index, list) => {
-            let res = a + b
-            if (index === list.length - 1) {
-                const suffix = `export type ${getPathsName('_Intersection')} = ${sources.map(({ name }) => getPathsName(name)).join('&')}\n`
-                res += suffix
+        if (!Array.isArray(sources))
+            return console.log(`%c[vite-plugin-swagger2ts]: doc error`, 'color: #ff0000;', JSON.stringify(sources))
+
+        const interfaceList = await Promise.all(sources.map(genCode))
+        const code = interfaceList.reduce((a, b) => a + b, '')
+        const suffix = interfaceList.reduce((a, b, index) => {
+            if (b) {
+                a += !a ? `export type ${getPathsName('_Intersection')} = ` : `&\n`
+                a += `${getPathsName(sources[index].name)}`
             }
-            return res
+            return a
         }, '')
 
         const outputFile = resolve(process.cwd(), output);
-        writeFileSync(outputFile, code);
+        writeFileSync(outputFile, code + suffix);
     }
 
     loadSwaggerSource();
