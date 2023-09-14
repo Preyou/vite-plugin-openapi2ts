@@ -99,7 +99,7 @@ export function generatorSchemaType(
     { isRoot = false, isRequired, isExport = false, docsName = "" }: GeneratorSchemaTypeOption = {}
 ): string {
     if (isTypeAny(schema)) {
-        return `\n${key}${isRequired === false ? "?" : ""}: any;\n`;
+        return `${key && `\n${key}${isRequired === false ? "?" : ""}: `}any${key && `;`}`;
     }
 
     const { type, $ref, enum: Enum, items, properties, oneOf, additionalProperties, required, allOf } = schema as SchemaObject;
@@ -162,6 +162,7 @@ export function generatorResponseBodyType(schemas: ResponseObject, docsName?: st
     } else {
         result = generatorSchemaType("", schema, { docsName });
     }
+
     return jsDoc({ description }, { key: "response", result });
 }
 
@@ -169,6 +170,9 @@ export function jsDoc(
     { description, title, format, example, default: default1 }: any,
     { key, result, isRoot, isExport, isRequired }: { key: string; result: string; isRoot?: boolean; isExport?: boolean; isRequired?: boolean }
 ): string {
+    if (!/(^\[.+\]$)|(^[^\[\]]*$)/.test(key)) // 如果key包含特殊字符，用字符串包起来，暂只判断中括号
+        key = `'${key}'`
+
     const jsDoc = `\n/**\n${title ? ` * @title ${title}\n` : ""}${description ? ` * @description ${description}\n` : ""}${format ? ` * @format ${format}\n` : ""}${default1 ? ` * @default ${default1}\n` : ""
         }${example ? ` * @example ${example}\n` : ""} **/\n`;
     return `${jsDoc == "\n/**\n **/\n" ? "" : jsDoc}${isRoot ? `${isExport ? "export " : ""}type ${key} = ${result};\n` : `${key}${isRequired === false ? "?" : ""}: ${result};\n`}`;
