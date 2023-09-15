@@ -39,7 +39,7 @@ function LuchAdapter<T extends Record<string, any>, C extends HttpRequestConfig 
             data: method !== 'get' ? param : config?.data as any,
             ...config,
         })
-        return response.data
+        return response
     }
     async function upload<
         U extends keyof FilterOptional<T, { post: any }>, P extends Get<Param<U, 'post'>, 'body' | 'query'>, N extends keyof P>(
@@ -49,7 +49,7 @@ function LuchAdapter<T extends Record<string, any>, C extends HttpRequestConfig 
                 formData?: Omit<P, N>
             }) {
         const response = await httpInstance.upload<Response<U, 'post'>>(url, config)
-        return response.data
+        return response
     }
 
     return { request, upload }

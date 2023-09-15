@@ -31,7 +31,7 @@ function axiosAdapter<T>(httpInstance: AxiosInstance) {
       data: method !== 'get' ? param : config?.data,
       ...config,
     })
-    return response.data
+    return response
   }
 
   return { request }
