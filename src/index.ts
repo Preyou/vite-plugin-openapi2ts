@@ -1,10 +1,11 @@
-import { writeFileSync } from "fs";
+import { writeFileSync, readFileSync } from "fs";
 import { resolve } from "path";
 import { convertObj } from "swagger2openapi";
 import { OpenAPIObject } from "openapi3-ts";
 import { UserOptions, SwaggerSource, SwaggerDoc, ExportPlugin, ResolvedOptions } from "./types";
 import { resolveOptions, fetchUrl } from "./utils";
-import { generateDocs, getPathsName } from "./generator";
+import { generateDocs, getApiName, getPathsName } from "./generator";
+import chalk from 'chalk'
 
 function convertObjPromise(docs: any) {
     return new Promise<OpenAPIObject>((resolve, reject) => {
@@ -17,7 +18,7 @@ function convertObjPromise(docs: any) {
 }
 
 async function loadSwaggerSource(options: ResolvedOptions) {
-    const { swaggerUrl, jsonUrl, output, formatDocs, formatSchema } = options;
+    const { swaggerUrl, jsonUrl, jsonPath, output, formatDocs, formatSchema } = options;
 
     async function genInterface(docs: SwaggerDoc | OpenAPIObject, docsName: string) {
         let openapiDocs = formatDocs ? formatDocs(docs) : docs;
@@ -30,14 +31,14 @@ async function loadSwaggerSource(options: ResolvedOptions) {
         return generateDocs(openapiDocs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
     }
 
-    async function genCode(source: SwaggerSource) {
+    async function genResourcesCode(source: SwaggerSource) {
         const { url, name } = source;
         try {
             const docs = await fetchUrl(`${swaggerUrl}${url}`)
             const code = await genInterface(docs, name)
             return code
         } catch (error) {
-            console.log(`%c[vite-plugin-swagger2ts]: ${name} error`, 'color: #ff0000;', (error as Error).message)
+            console.log(chalk.yellow(`[vite-plugin-swagger2ts]: ${name} error;`) + (error as Error).message)
             return ''
         }
     }
@@ -47,18 +48,26 @@ async function loadSwaggerSource(options: ResolvedOptions) {
         let interfaces: string[] = []
 
         if (typeof swaggerUrl === 'string') {
-            const resources = (await fetchUrl(`${swaggerUrl}/swagger-resources`).catch((error) => error));
+            const resources = (await fetchUrl(`${swaggerUrl}/swagger-resources;`).catch((error) => error));
             if (Array.isArray(resources)) {
                 sources = resources
-                interfaces.push(...(await Promise.all(sources.map(genCode))))
+                interfaces.push(...(await Promise.all(sources.map(genResourcesCode))))
             } else {
-                console.log(`%c[vite-plugin-swagger2ts]: resources error`, 'color: #ff0000;', JSON.stringify(resources))
+                console.log(chalk.yellow(`[vite-plugin-swagger2ts]: resources error`) + JSON.stringify(resources))
             }
         }
+
         if (typeof jsonUrl === 'string') {
             const swaggerJson: OpenAPIObject = await fetchUrl(jsonUrl)
-            if (!swaggerJson.info) return console.log(`%c[vite-plugin-swagger2ts]: jsonUrl error`, 'color: #ff0000;', JSON.stringify(swaggerJson))
-            interfaces.push(await genInterface(swaggerJson, swaggerJson.info.title.replace(' ', '_')))
+            if (!swaggerJson.info) return console.log(chalk.yellow(`[vite-plugin-swagger2ts]: jsonUrl error;`) + JSON.stringify(swaggerJson))
+                interfaces.push(await genInterface(swaggerJson, getApiName(swaggerJson)))
+        }
+
+        if (typeof jsonPath === 'string') {
+            const _jsonPath = resolve(process.cwd(), jsonPath)
+            const swaggerJson: OpenAPIObject = JSON.parse(readFileSync(_jsonPath, { encoding: 'utf-8' }))
+
+            interfaces.push(await genInterface(swaggerJson, getApiName(swaggerJson)))
         }
 
         return { sources, interfaces }

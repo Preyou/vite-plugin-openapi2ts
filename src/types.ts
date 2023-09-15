@@ -12,6 +12,10 @@ export interface Options {
      * 文档json地址
      */
     jsonUrl?: string;
+    /**
+     * openApi 本地json
+     */
+    jsonPath?:string;
     output?: string;
     formatDocs?: (docs: SwaggerDoc | OpenAPIObject) => typeof docs;
     formatSchema?: FormatSchema;

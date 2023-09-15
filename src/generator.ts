@@ -40,7 +40,7 @@ export function generateDocs(input: OpenAPIObject, { docsName, baseUrl, formatSc
 
                     // 找到状态码为 200 或者 default 的 responses 体，并将 ReferenceObject 格式的转换为 ResponseObject；
                     let responses = Object.entries(options.responses)
-                        .filter((items) => items[0] == "200" || items[0] == "default")
+                        .filter((items) => items[0].startsWith('20') || items[0] == "default")
                         .sort()?.[0]?.[1] as ResponseObject | ReferenceObject;
 
                     if ("$ref" in responses) {
@@ -180,4 +180,7 @@ export function jsDoc(
 
 export function getPathsName(docsName: string) {
     return `Paths${getRefName(docsName)}`
+}
+export function getApiName(json: OpenAPIObject) {
+    return json.info.title.replace(' ', '_')
 }

@@ -1,6 +1,5 @@
 import { loadConfig as configLoader } from 'unconfig'
-import { ExportPlugin, UserOptions } from '../types'
-import { Plugin, UserConfig } from 'vite'
+import { UserOptions } from '../types'
 
 export const pluginName = 'vite-plugin-swagger2ts'
 
