@@ -1,5 +1,5 @@
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
-import {Get, mergeUrlParam} from './utils'
+import { Get, mergeUrlParam } from './utils'
 
 function axiosAdapter<T>(httpInstance: AxiosInstance) {
   type UrlKey = string & keyof T

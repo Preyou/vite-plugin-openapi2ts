@@ -21,14 +21,14 @@ async function loadSwaggerSource(options: ResolvedOptions) {
     const { swaggerUrl, jsonUrl, jsonPath, output, formatDocs, formatSchema } = options;
 
     async function genInterface(docs: SwaggerDoc | OpenAPIObject, docsName: string) {
-        let openapiDocs = formatDocs ? formatDocs(docs) : docs;
-        if (!("openapi" in openapiDocs)) {
+        docs = formatDocs ? formatDocs(docs) : docs;
+        if (!("openapi" in docs)) {
             if (docs.swagger)
-                openapiDocs = await convertObjPromise(openapiDocs);
+                docs = await convertObjPromise(docs);
             else
                 throw new Error(JSON.stringify(docs))
         }
-        return generateDocs(openapiDocs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
+        return generateDocs(docs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
     }
 
     async function genResourcesCode(source: SwaggerSource) {
