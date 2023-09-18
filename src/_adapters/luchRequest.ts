@@ -1,5 +1,5 @@
 import type Request from 'luch-request'
-import type { HttpRequestConfig } from 'luch-request'
+import type { HttpRequestConfig, HttpResponse } from 'luch-request'
 import { Get, mergeUrlParam } from './utils'
 
 type FilterOptional<Source, Condition> = Pick<
@@ -9,7 +9,7 @@ type FilterOptional<Source, Condition> = Pick<
     }[keyof Source]
 >
 
-function LuchAdapter<T extends Record<string, any>, C extends HttpRequestConfig = HttpRequestConfig>(httpInstance: Request) {
+function LuchAdapter<T extends Record<string, any> /**类型集合 */, AxiosRes = true/**返回类型是否包含Response */>(httpInstance: Request) {
     type UrlKey = keyof T
     type MethodKey<U extends UrlKey> = string & keyof T[U]
 
@@ -23,7 +23,7 @@ function LuchAdapter<T extends Record<string, any>, C extends HttpRequestConfig 
     async function request<U extends UrlKey, M extends MethodKey<U>>(
         url: U & string, method: M,
         param?: Get<Param<U, M>, M extends 'get' ? 'query' : 'body'>,
-        config?: HttpRequestConfig & C & {
+        config?: HttpRequestConfig & {
             data?: Get<Param<U, M>, 'body'>
             params?: Get<Param<U, M>, 'query'>
             path?: Get<Param<U, M>, 'path'>
@@ -32,7 +32,8 @@ function LuchAdapter<T extends Record<string, any>, C extends HttpRequestConfig 
         if (config?.path)
             (url as string) = mergeUrlParam(url, config.path)
 
-        const response = await httpInstance.middleware<Response<U, M>>({
+    type Res = Response<U, M>
+    const response = await httpInstance.middleware<any, AxiosRes extends true ? HttpResponse<Res> : Res>({
             url,
             method: method.toUpperCase() as any,
             params: method === 'get' ? param : config?.params as any,

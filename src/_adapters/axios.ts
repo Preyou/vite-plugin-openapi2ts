@@ -1,8 +1,8 @@
-import type { AxiosInstance, AxiosRequestConfig } from 'axios'
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Get, mergeUrlParam } from './utils'
 
-function axiosAdapter<T>(httpInstance: AxiosInstance) {
-  type UrlKey = string & keyof T
+function axiosAdapter<T extends Record<string, any> /**类型集合 */, AxiosRes = true/**返回类型是否包含Response */>(httpInstance: AxiosInstance) {
+  type UrlKey = keyof T
   type MethodKey<U extends UrlKey> = string & keyof T[U]
 
   type SwaggerInterfaceSingle<U extends UrlKey, M extends MethodKey<U>> = T[U][M]
@@ -13,7 +13,7 @@ function axiosAdapter<T>(httpInstance: AxiosInstance) {
   type Response<U extends UrlKey, M extends MethodKey<U>> = SwaggerFieldType<U, M, 'response' & SwaggerField<U, M>>
 
   async function request<U extends UrlKey, M extends MethodKey<U>>(
-    url: U, method: M,
+    url: U & string, method: M,
     param?: Get<Param<U, M>, M extends 'get' ? 'query' : 'body'>,
     config?: AxiosRequestConfig & {
       data?: Get<Param<U, M>, 'body'>
@@ -24,7 +24,8 @@ function axiosAdapter<T>(httpInstance: AxiosInstance) {
     if (config?.path)
       (url as string) = mergeUrlParam(url, config.path)
 
-    const response = await httpInstance.request<Response<U, M>>({
+    type Res = Response<U, M>
+    const response = await httpInstance.request<any, AxiosRes extends true ? AxiosResponse<Res> : Res>({
       url,
       method,
       params: method === 'get' ? param : config?.params,
