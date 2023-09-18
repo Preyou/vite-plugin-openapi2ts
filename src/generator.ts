@@ -113,7 +113,7 @@ export function generatorSchemaType(
     } else if (items) {
         // 数组
         result = `${generatorSchemaType("", items, { docsName })}[]`;
-    } else if (properties) {
+    } else if (properties && !isTypeAny(properties)) {
         // 对象
         result += `{${Object.entries(properties)
             .map(([pName, _schema]) => generatorSchemaType(pName, _schema, { isRequired: !required || required.includes(pName) ? true : false, docsName }))
