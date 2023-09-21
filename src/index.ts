@@ -7,16 +7,6 @@ import { resolveOptions, fetchUrl } from "./utils";
 import { generateDocs, getApiName, getPathsName } from "./generator";
 import chalk from 'chalk'
 
-function convertObjPromise(docs: any) {
-    return new Promise<OpenAPIObject>((resolve, reject) => {
-        convertObj(docs, { patch: true }, function (err, option) {
-            // err && console.log("err", err);
-            if (err || !option.openapi) return reject(err);
-            resolve(option.openapi);
-        });
-    });
-}
-
 async function loadSwaggerSource(options: ResolvedOptions) {
     const { swaggerUrl, jsonUrl, jsonPath, output, formatDocs, formatSchema } = options;
 
@@ -24,7 +14,7 @@ async function loadSwaggerSource(options: ResolvedOptions) {
         docs = formatDocs ? formatDocs(docs) : docs;
         if (!("openapi" in docs)) {
             if (docs.swagger)
-                docs = await convertObjPromise(docs);
+                docs = (await convertObj(docs, { patch: true })).openapi as OpenAPIObject;
             else
                 throw new Error(JSON.stringify(docs))
         }
@@ -60,7 +50,7 @@ async function loadSwaggerSource(options: ResolvedOptions) {
         if (typeof jsonUrl === 'string') {
             const swaggerJson: OpenAPIObject = await fetchUrl(jsonUrl)
             if (!swaggerJson.info) return console.log(chalk.yellow(`[vite-plugin-swagger2ts]: jsonUrl error;`) + JSON.stringify(swaggerJson))
-                interfaces.push(await genInterface(swaggerJson, getApiName(swaggerJson)))
+            interfaces.push(await genInterface(swaggerJson, getApiName(swaggerJson)))
         }
 
         if (typeof jsonPath === 'string') {
