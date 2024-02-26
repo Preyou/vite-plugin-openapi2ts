@@ -2,10 +2,11 @@ import { writeFileSync, readFileSync } from "fs";
 import { relative, resolve } from "path";
 import { convertObj } from "swagger2openapi";
 import { OpenAPIObject } from "openapi3-ts";
+import chalk from 'chalk'
+import { format } from 'prettier'
 import { UserOptions, SwaggerSource, SwaggerDoc, ExportPlugin, ResolvedOptions } from "./types";
 import { resolveOptions, fetchUrl } from "./utils";
 import { generateDocs, generatorMethodType, getApiName, getPathsName } from "./generator";
-import chalk from 'chalk'
 import { CODE_PREFIX, pluginName } from "./config";
 
 async function loadSwaggerSource(options: ResolvedOptions) {
@@ -86,12 +87,12 @@ async function loadSwaggerSource(options: ResolvedOptions) {
     }, '')
 
     const outputFile = resolve(process.cwd(), output);
-    writeFileSync(outputFile, CODE_PREFIX + code + suffix);
+    writeFileSync(outputFile, await format(CODE_PREFIX + code + suffix, { parser: 'typescript' }));
 
     return { sources, interfaces }
 }
 
-function loadGlobTypes({ glob, output }: ResolvedOptions) {
+async function loadGlobTypes({ glob, output }: ResolvedOptions) {
     if (!glob) return
 
     const outputFile = resolve(process.cwd(), glob.output || 'auto-types.d.ts')
@@ -112,7 +113,7 @@ declare global {
     ${generatorMethodType(intersection)}
   }
 }`
-    writeFileSync(outputFile, code);
+    writeFileSync(outputFile, await format(code, { parser: 'typescript' }));
 }
 
 function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
@@ -120,7 +121,7 @@ function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
     (async () => {
         const options = await resolveOptions(userOptions)
         await Promise.all(options.map(loadSwaggerSource))
-        options.forEach(loadGlobTypes)
+        await Promise.all(options.map(loadGlobTypes))
     })()
 
     return {

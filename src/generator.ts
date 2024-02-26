@@ -187,7 +187,7 @@ export function generatorMethodType(intersection: string) {
         return `export type ${toPascalCase(method)}${toPascalCase(key)}<T extends ${paths}>> = ${intersection}[T]['${method}']['param']['${key}'];`
     }
     return METHODS.reduce((total, method) => {
-        const responseCode = `export type ${toPascalCase(method)}${toPascalCase('response')}<T extends keyof ${intersection}> = ${intersection}[T]['${method}']['response'];`
+        const responseCode = `// ${method}\nexport type ${toPascalCase(method)}${toPascalCase('response')}<T extends keyof ${intersection}> = ${intersection}[T]['${method}']['response'];`
         const code = paramKeys.reduce((total1, key) => `${total1}\n${genTypeCode(method, key)}`, responseCode)
         return `${total}${total && `\n\n`}${code}`
     }, '')
