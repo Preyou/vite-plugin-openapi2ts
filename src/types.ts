@@ -15,10 +15,15 @@ export interface Options {
     /**
      * openApi 本地json
      */
-    jsonPath?:string;
+    jsonPath?: string;
     output?: string;
     formatDocs?: (docs: SwaggerDoc | OpenAPIObject) => typeof docs;
     formatSchema?: FormatSchema;
+
+    glob?: {
+        namespace: string,
+        output?: string,
+    }
 }
 
 export type UserOptions = Options | { sources: Options[] };

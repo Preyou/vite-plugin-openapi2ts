@@ -16,7 +16,7 @@ export async function resolveOptions(userOptions?: UserOptions) {
         const root = process.cwd();
         const outputFile = output ? (output?.endsWith(".ts") ? output : output + ".ts") : "./src/swagger.ts";
 
-        return Object.assign({ output: resolve(root, outputFile) }, item) as ResolvedOptions;
+        return { ...item, output: resolve(root, outputFile) } as ResolvedOptions;
     })
 }
 

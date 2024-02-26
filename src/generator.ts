@@ -1,6 +1,8 @@
 import { OpenAPIObject, RequestBodyObject, ResponseObject, ReferenceObject, OperationObject, ParameterObject, SchemaObject } from "openapi3-ts";
-import { getRefName, isTypeAny } from "./utils";
+import { getRefName, isTypeAny, toPascalCase } from "./utils";
 import { GenerateDocOption } from "./types";
+
+const METHODS = ["get", "put", "post", "delete", "options", "head", "patch", "trace"]
 
 export function generateDocs(input: OpenAPIObject, { docsName, baseUrl, formatSchema }: GenerateDocOption) {
     function getRefObject(ref: string) {
@@ -20,7 +22,7 @@ export function generateDocs(input: OpenAPIObject, { docsName, baseUrl, formatSc
             const result = Object.entries(pathValue)
                 .map(([method, options]: [string, OperationObject]) => {
                     //  不是请求方法的属性都跳过
-                    if (!["get", "put", "post", "delete", "options", "head", "patch", "trace"].includes(method)) {
+                    if (!METHODS.includes(method)) {
                         return;
                     }
                     let allParameters = [...(parametersExtended || []), ...(options.parameters || [])].map((item) => {
@@ -178,9 +180,23 @@ export function jsDoc(
     return `${jsDoc == "\n/**\n **/\n" ? "" : jsDoc}${isRoot ? `${isExport ? "export " : ""}type ${key} = ${result};\n` : `${key}${isRequired === false ? "?" : ""}: ${result};\n`}`;
 }
 
+export function generatorMethodType(intersection: string) {
+    const paramKeys = ['body', 'query', 'path']
+    const genTypeCode = (method: typeof METHODS[number], key: typeof paramKeys[number]) => {
+        const paths = `keyof FilterOptional<${intersection}, { ${method}: { param: { ${key}: any } } }`
+        return `export type ${toPascalCase(method)}${toPascalCase(key)}<T extends ${paths}>> = ${intersection}[T]['${method}']['param']['${key}'];`
+    }
+    return METHODS.reduce((total, method) => {
+        const responseCode = `export type ${toPascalCase(method)}${toPascalCase('response')}<T extends keyof ${intersection}> = ${intersection}[T]['${method}']['response'];`
+        const code = paramKeys.reduce((total1, key) => `${total1}\n${genTypeCode(method, key)}`, responseCode)
+        return `${total}${total && `\n\n`}${code}`
+    }, '')
+}
+
 export function getPathsName(docsName: string) {
     return `Paths${getRefName(docsName)}`
 }
+
 export function getApiName(json: OpenAPIObject) {
     return json.info.title.replace(' ', '_')
 }

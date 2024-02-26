@@ -4,7 +4,10 @@ export default defineConfig({
     sources: [
         {
             jsonPath: "./src/assets/示例项目.openapi.json",
-            output: "./src/openApi.ts"
+            output: "./src/api/openApi.ts",
+            glob: {
+                namespace: 'ExpProject'
+            }
         }
     ]
 })
