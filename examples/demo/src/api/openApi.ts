@@ -8,11 +8,11 @@ export type 示例项目ComponentsSchemasTag = {
  * @description 标签ID编号
  * @format int64
  **/
-id: number;
+'id': number;
 /**
  * @description 标签名称
  **/
-name: string;
+'name': string;
 };
 export type 示例项目ComponentsSchemasCategory = {
   /**

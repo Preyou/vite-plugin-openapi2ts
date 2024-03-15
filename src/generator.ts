@@ -60,7 +60,7 @@ export function generateDocs(input: OpenAPIObject, { docsName, baseUrl, formatSc
                 })
                 .join("");
 
-            return jsDoc({}, { key: `'${baseUrl}${endPoint}'`, result: `{${result}}` });
+            return jsDoc({}, { key: `${baseUrl}${endPoint}`, result: `{${result}}` });
         })
         .join("");
     const typeString = input.components?.schemas
@@ -172,7 +172,7 @@ export function jsDoc(
     { description, title, format, example, default: default1 }: any,
     { key, result, isRoot, isExport, isRequired }: { key: string; result: string; isRoot?: boolean; isExport?: boolean; isRequired?: boolean }
 ): string {
-    if (!/(^\[.+\]$)|(^[^\[\]]*$)/.test(key)) // 如果key包含特殊字符，用字符串包起来，暂只判断中括号
+    if (!(isRoot || isExport) && /^[^'"]*$/.test(key)) // 如果key在对象中且不包含引号，则添加引号
         key = `'${key}'`
 
     const jsDoc = `\n/**\n${title ? ` * @title ${title}\n` : ""}${description ? ` * @description ${description}\n` : ""}${format ? ` * @format ${format}\n` : ""}${default1 ? ` * @default ${default1}\n` : ""
