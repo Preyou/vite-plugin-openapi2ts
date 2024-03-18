@@ -87,7 +87,7 @@ async function loadSwaggerSource(options: ResolvedOptions) {
     }, '')
 
     const outputFile = resolve(process.cwd(), output);
-    writeFileSync(outputFile, await format(CODE_PREFIX + code + suffix, { parser: 'typescript' }));
+    writeFileSync(outputFile, CODE_PREFIX + await format(code + suffix, { parser: 'typescript' }));
 
     return { sources, interfaces }
 }
@@ -99,7 +99,7 @@ async function loadGlobTypes({ glob, output }: ResolvedOptions) {
     const importPath = relative(outputFile, output).replaceAll('\\', '/').replace(/^\.\.\//, './')
     const intersection = getPathsName('_Intersection')
 
-    const code = `${CODE_PREFIX}import { ${intersection} } from '${importPath}'
+    const code = `import { ${intersection} } from '${importPath}'
 
 type FilterOptional<Source, Condition> = Pick<
   Source,
@@ -113,7 +113,7 @@ declare global {
     ${generatorMethodType(intersection)}
   }
 }`
-    writeFileSync(outputFile, await format(code, { parser: 'typescript' }));
+    writeFileSync(outputFile, await format(CODE_PREFIX + code, { parser: 'typescript' }));
 }
 
 function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {

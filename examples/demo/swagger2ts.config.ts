@@ -6,7 +6,8 @@ export default defineConfig({
             jsonPath: "./src/assets/示例项目.openapi.json",
             output: "./src/api/openApi.ts",
             glob: {
-                namespace: 'ExpProject'
+                namespace: 'ExpProject',
+                output: "./src/api/openApi.d.ts",
             }
         }
     ]
