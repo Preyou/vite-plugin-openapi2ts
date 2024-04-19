@@ -1,7 +1,7 @@
-import { writeFileSync, readFileSync } from "fs";
-import { relative, resolve } from "path";
+import { writeFileSync, readFileSync } from "node:fs";
+import { relative, resolve } from "node:path";
 import { convertObj } from "swagger2openapi";
-import { OpenAPIObject } from "openapi3-ts";
+import { OpenAPIObject } from 'openapi3-ts/oas31';
 import chalk from 'chalk'
 import { format } from 'prettier'
 import { UserOptions, SwaggerSource, SwaggerDoc, ExportPlugin, ResolvedOptions } from "./types";
@@ -20,6 +20,7 @@ async function loadSwaggerSource(options: ResolvedOptions) {
             else
                 throw new Error(JSON.stringify(docs))
         }
+        // @ts-expect-error
         const res = generateDocs(docs, { docsName, baseUrl: docs.basePath ?? "", formatSchema });
         console.log(chalk.green(`[${pluginName}]: ${docsName} success`))
         return res
@@ -88,6 +89,7 @@ async function loadSwaggerSource(options: ResolvedOptions) {
 
     const outputFile = resolve(process.cwd(), output);
     writeFileSync(outputFile, CODE_PREFIX + await format(code + suffix, { parser: 'typescript' }));
+    // writeFileSync(outputFile, CODE_PREFIX + code);
 
     return { sources, interfaces }
 }

@@ -1,4 +1,4 @@
-import type { OpenAPIObject, SchemaObject } from "openapi3-ts";
+import type { OpenAPIObject, SchemaObject } from "openapi3-ts/oas31";
 import type { Plugin } from "vite";
 
 type FormatSchema = (schema: SchemaObject) => SchemaObject;

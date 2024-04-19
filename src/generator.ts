@@ -1,4 +1,4 @@
-import { OpenAPIObject, RequestBodyObject, ResponseObject, ReferenceObject, OperationObject, ParameterObject, SchemaObject } from "openapi3-ts";
+import { OpenAPIObject, RequestBodyObject, ResponseObject, ReferenceObject, OperationObject, ParameterObject, SchemaObject } from "openapi3-ts/oas31";
 import { getRefName, isTypeAny, toPascalCase } from "./utils";
 import { GenerateDocOption } from "./types";
 
@@ -10,6 +10,7 @@ export function generateDocs(input: OpenAPIObject, { docsName, baseUrl, formatSc
             .split("/")
             .slice(1)
             .reduce((obj, item) => {
+                // @ts-expect-error
                 return obj[item] || {};
             }, input);
     }
@@ -42,7 +43,7 @@ export function generateDocs(input: OpenAPIObject, { docsName, baseUrl, formatSc
 
                     // 找到状态码为 200 或者 default 的 responses 体，并将 ReferenceObject 格式的转换为 ResponseObject；
                     let responses = Object.entries(options.responses)
-                        .filter((items) => items[0].startsWith('20') || items[0] == "default")
+                        // .filter((items) => items[0].startsWith('20') || items[0] == "default")
                         .sort()?.[0]?.[1] as ResponseObject | ReferenceObject;
 
                     if ("$ref" in responses) {
@@ -104,6 +105,7 @@ export function generatorSchemaType(
         return `${key && `\n${key}${isRequired === false ? "?" : ""}: `}any${key && `;`}`;
     }
 
+    // @ts-expect-error
     const { type, $ref, enum: Enum, items, properties, oneOf, additionalProperties, required, allOf } = schema as SchemaObject;
     let result = "";
     if ($ref) {
@@ -198,5 +200,5 @@ export function getPathsName(docsName: string) {
 }
 
 export function getApiName(json: OpenAPIObject) {
-    return json.info.title.replace(' ', '_')
+    return json.info.title.replaceAll(' ', '_')
 }
