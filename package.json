@@ -2,7 +2,7 @@
     "name": "@preyou911/vite-plugin-openapi2ts",
     "type": "module",
     "description": "forked from https://github.com/morelearn1990/vite-plugin-swagger2ts",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "license": "MIT",
     "author": "阳文虎",
     "repository": {
