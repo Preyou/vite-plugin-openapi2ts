@@ -119,18 +119,22 @@ declare global {
 }
 
 function swagger2TsPlugin(userOptions?: UserOptions): ExportPlugin {
-
-    (async () => {
-        const options = await resolveOptions(userOptions)
-        await Promise.all(options.map(loadSwaggerSource))
-        await Promise.all(options.map(loadGlobTypes))
-    })()
-
-    return {
-        name: `${pluginName}`,
-        enforce: "pre",
-        apply: "serve"
-    };
+    try {
+        (async () => {
+            const options = await resolveOptions(userOptions)
+            await Promise.all(options.map(loadSwaggerSource))
+            await Promise.all(options.map(loadGlobTypes))
+        })()
+    } catch (error) {
+        console.log(chalk.yellow(`error`) + (error as Error).message)
+    }
+    finally {
+        return {
+            name: `${pluginName}`,
+            enforce: "pre",
+            apply: "serve"
+        };
+    }
 }
 
 export function defineConfig(userOptions?: UserOptions) {

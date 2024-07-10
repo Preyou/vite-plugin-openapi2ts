@@ -21,7 +21,11 @@ export async function resolveOptions(userOptions?: UserOptions) {
 }
 
 export async function fetchUrl(url: string) {
-    return await fetch(url).then((res) => res.json());
+    try {
+        return await fetch(url).then((res) => res.json());
+    } catch (err) {
+        throw Error('文档获取错误', { cause: err })
+    }
 }
 
 export function getRef(ref: string, apiDocs: OpenAPIObject) {
